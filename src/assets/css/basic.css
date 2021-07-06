@@ -1,0 +1,67 @@
+*{padding: 0px; margin: 0px;}
+a{text-decoration: none;color: #FFF;font-size: 20px;}
+.clear{clear: both;}
+h3{font-weight: normal;text-align: center;padding: 12px;}
+h2{font-weight: normal;height: 60px;line-height: 60px;color: #FFF;margin-left: 20px;}
+
+/*CSS3去除移动端点击元素时产生的高亮背景色*/
+body{-webkit-tap-highlight-color: transparent;}
+/*CSS3去除移动端点击元素时产生的高亮背景色*/
+
+/*登录页面公共样式*/
+.el-form-item__label{font-size: 18px;}
+.el-input__inner{height: 50px;line-height: 50px;font-size: 18px;}
+.subLabel .el-form-item__label{color: #FFF;}
+/*登录页面公共样式*/
+
+
+html,body,#app{height: 100%;}
+
+/*.index{height: 100%;width: 100%;display: flex;}*/
+.index{height: 100%;width: 100%;display: flex;}
+.left{max-width: 15%;float: left;background: #303030;height: 100%;}
+/*.left{flex:0 0 auto;background: #303030;height: 100%;}*/
+.right{width: 85%;float:right;height: 100%; background: #ebecef;flex:1 1 auto;}
+/*.right{flex:1 1 auto;height: 100%; background: #ebecef;}*/
+.left .logo{width: 100%;height: 110px;line-height:110px;background: #FFF;}
+.left .logo img{width: 70%;float: left;margin-left: 15%;margin-right: 15%;margin-top: 5%;}
+/*.right-top{width: 100%;height: 60px;background: #023866;}*/
+.right-top{width: 100%;height: 60px;background: #023866;}
+.right-main{width: 100%;}
+.tab-item{height: 80px;line-height: 80px;text-align: center;}
+.user{height: 60px;line-height: 60px;float: right;margin-right: 20px;color: #FFF;}
+a{width: 100%;display: block;}
+/*.active{background: #111111 !important;}*/
+
+.el-dropdown{color: #FFF;font-size: 16px;}
+.el-dropdown-menu__item{font-size: 16px;}
+.el-dialog__body{font-size: 16px;}
+
+.el-table .cell{font-size:17px;}
+.el-button+.el-button{margin-left: 0px;}
+.el-button--medium{font-size: 16px;}
+.el-table td, .el-table th{padding: 5px 0px;}
+
+
+/*侧边切换按钮样式*/
+.but-qie .el-popover, .el-radio-button:first-child:last-child .el-radio-button__inner{border-radius: 50%;height: 40px;width: 40px;}
+.but-qie .el-radio-button__inner{padding: 12px 13px;}
+/*侧边切换按钮样式*/
+
+.el-menu{border-right: none;}
+.el-menu-item, .el-submenu__title{height:80px;line-height: 80px; }
+.el-menu-item{font-size: 18px;}
+
+
+.el-menu-item:hover{
+  background:transparent !important;
+}
+/*.el-menu-item.is-active {*/
+
+  /*background-color: #409EFF !important;*/
+/*}*/
+
+.el-select{width: 100%;}
+.el-select-dropdown__item{font-size: 16px;}
+.el-checkbox__inner{width: 18px;height: 18px;}
+.el-checkbox__inner:after{left: 6px;top: 2px;width: 4px;}
