@@ -89,6 +89,10 @@
               >
               </af-table-column>
               <af-table-column
+                prop="FORDERQTY"
+                label="订单数">
+              </af-table-column>
+              <af-table-column
                 prop="FQTY"
                 label="送货数">
               </af-table-column>

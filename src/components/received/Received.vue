@@ -81,7 +81,10 @@
                   prop="FMANAME"
                   label="物料名称">
                 </af-table-column>
-
+                <af-table-column
+                  prop="FORDERQTY"
+                  label="订单数">
+                </af-table-column>
                 <af-table-column
                   prop="FDELIVERYQTY"
                   label="送货数">
@@ -101,10 +104,7 @@
                   label="仓库">
                 </af-table-column>
 
-                <af-table-column
-                  prop="FORDERQTY"
-                  label="订单数">
-                </af-table-column>
+
 
 <!--                <af-table-column-->
 <!--                  prop="FISCHECK"-->
@@ -177,7 +177,7 @@
       <!--退出登录弹窗结束-->
 
       <!--单个收货送检弹窗开始-->
-      <el-dialog title="收货送检" :close-on-click-modal="false" :visible.sync="dialogNum" width="90%">
+      <el-dialog title="收货送检/入库" :close-on-click-modal="false" :visible.sync="dialogNum" width="90%">
         <el-table
           :data="receivedRow"
           border
@@ -759,6 +759,7 @@
 
          //this.danCheckrow = row
           this.showDCheck = true
+          this.showDEnter = false
           this.dialogNum = true
 
           this.Dstock = []
@@ -803,6 +804,7 @@
         //单个入库
         handleClick3(row) {
           this.showDEnter = true
+          this.showDCheck = false
           this.dialogNum = true
 
           this.Dstock = []
@@ -1107,8 +1109,8 @@
         },
         qrcode(){
           //网页调试
-          //this.GetReceived('FH_000074090')
-          //this.GetReceived('FH_000074092')
+          //this.GetReceived('FH_000074388')
+          //this.GetReceived('FH_000074337')
 
           // BSL.Qcode('0','aa')
           AndroidJs.scan('aa');

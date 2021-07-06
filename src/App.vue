@@ -15,7 +15,7 @@ export default {
     // var Us = localStorage.getItem('user')
     // this.GLOBAL.userData = JSON.parse(Us)
     //alert(window.screen.availHeight)
-    this.GLOBAL.isheight = window.screen.availHeight-109
+    this.GLOBAL.isheight = window.screen.availHeight - 120
 
   },
   destroyed(){

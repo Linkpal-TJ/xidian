@@ -91,6 +91,10 @@
               >
               </af-table-column>
               <af-table-column
+                prop="FORDERQTY"
+                label="订单数">
+              </af-table-column>
+              <af-table-column
                 prop="FQTY"
                 label="送货数">
               </af-table-column>
@@ -135,7 +139,7 @@
                 label="操作"
                 width="120">
                 <template slot-scope="scope">
-                  <el-button @click="handleClick(scope.row)" type="primary" size="medium" :disabled="scope.row.FQUALIFIEDQTY >= scope.row.FQTY">提交检验</el-button>
+                  <el-button @click="handleClick(scope.row)" type="primary" size="medium" :disabled="!scope.row.FQUALIFIEDQTY ==''">提交检验</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -216,6 +220,17 @@
       methods: {
         piCheckout(){
           if(this.multipleSelection.length>0){
+
+            for(var x=0;x<this.multipleSelection.length;x++){
+              if(this.multipleSelection[x].FSTATUS == '已入库'){
+                this.$message.warning('请去掉已入库的物料后在提交');
+                this.$refs.multipleTable.clearSelection();
+                return;
+              }
+            }
+
+
+
             this.checkData=[]
             for(var k = 0;k<this.multipleSelection.length;k++){
               this.checkData.push({
@@ -235,7 +250,8 @@
                 //送检成功,刷新收货清单数据
                 console.log(response.data)
                 this.$message.success('操作成功');
-                this.GetReceived(this.saoCheckout)
+
+                this.GetCheckout(this.saoCheckout)
 
               }else {
                 this.$message.error(response.data.result);
@@ -253,7 +269,7 @@
         },
         handleSelectionChange(val) {
           this.multipleSelection = val;
-          //console.log(this.multipleSelection)
+          console.log(this.multipleSelection)
         },
         tests(){
           if(this.isShow = false){
@@ -265,10 +281,8 @@
           this.activeIndex = index
         },
         qie(){
-
           this.isOpen = !this.isOpen
           this.GLOBAL.isState = !this.GLOBAL.isState
-
         },
         testsCheck(){
           if(this.isShow = false){
@@ -278,7 +292,9 @@
         handleClick(row) {
           this.dialogCheck = true
           this.checkRow = row
-          this.ruleCheckNum.checkNum = ''
+          //this.ruleCheckNum.checkNum = ''
+          this.ruleCheckNum.checkNum = row.FQTY
+
         },
         resetCheckNum(){
           this.ruleCheckNum.checkNum = ''
@@ -320,8 +336,10 @@
             if(response.data.success == true){
               //送检成功,刷新收货清单数据
               console.log(response.data)
+
               this.$message.success('操作成功');
-              this.GetReceived(this.saoCheckout)
+
+              this.GetCheckout(this.saoCheckout)
 
 
             }else {
@@ -360,7 +378,7 @@
           //网页测试
           //this.GetCheckout('FH_000073015')
           //this.GetCheckout('FH_000074090')
-          //this.GetCheckout('FH_000074092')
+          //this.GetCheckout('FH_000074388')
 
           // BSL.Qcode('0','cc')
           AndroidJs.scan('cc');
