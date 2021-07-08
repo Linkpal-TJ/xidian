@@ -30,6 +30,10 @@
               <i class="el-icon-s-claim"></i>
               <span slot="title">入库</span>
             </el-menu-item>
+            <el-menu-item index="/index/platform">
+              <i class="el-icon-s-platform"></i>
+              <span slot="title">发料平台</span>
+            </el-menu-item>
           </el-menu>
 
 

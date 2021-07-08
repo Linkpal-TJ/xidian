@@ -3,9 +3,9 @@ const userData = {
   // PassWord:''
 }
 //测试地址
-//const baseURL = 'http://192.168.0.103:2021'
+const baseURL = 'http://192.168.5.133:22467'
 //上线地址
-const baseURL = 'http://61.185.49.38:22467'
+//const baseURL = 'http://61.185.49.38:22467'
 const token = ''
 //屏幕高度
 const isheight =''

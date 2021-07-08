@@ -4,6 +4,8 @@ import Login from '@/pages/login/Login'
 import Checkout from '@/components/checkout/Checkout'
 import Enter from '@/components/enter/Enter'
 import Received from '@/components/received/Received'
+import Platform from '@/components/platform/Platform'
+import Detail from '@/components/platform/Detail'
 
 Vue.use(Router)
 
@@ -35,6 +37,14 @@ export default new Router({
       path: '/index/received',
       name: 'Received',
       component: Received
+    },{
+      path: '/index/platform',
+      name: 'Platform',
+      component: Platform
+    },{
+      path: '/index/platform/detail',
+      name: 'Detail',
+      component: Detail
     },
 
 

@@ -65,3 +65,5 @@ a{width: 100%;display: block;}
 .el-select-dropdown__item{font-size: 16px;}
 .el-checkbox__inner{width: 18px;height: 18px;}
 .el-checkbox__inner:after{left: 6px;top: 2px;width: 4px;}
+
+.el-button--medium{padding: 10px 10px;}

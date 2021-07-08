@@ -29,6 +29,10 @@
               <i class="el-icon-s-claim"></i>
               <span slot="title">入库</span>
             </el-menu-item>
+            <el-menu-item index="/index/platform">
+              <i class="el-icon-s-platform"></i>
+              <span slot="title">发料平台</span>
+            </el-menu-item>
           </el-menu>
 
 
@@ -135,10 +139,11 @@
                 align="center"
                 fixed="right"
                 label="操作"
-                width="120">
+                width="205">
                 <template slot-scope="scope">
 <!--                  <el-button @click="handleClick(scope.row)" type="primary" size="medium">确认入库</el-button>-->
-                  <el-button :disabled="scope.row.FSTATUS == '已入库'" @click="handleClick(scope.row)" type="primary" size="medium">确认入库</el-button>
+                  <el-button :disabled="scope.row.FSTATUS == '已入库'" style="float: left;" @click="handleClick(scope.row)" type="primary" size="medium">确认入库</el-button>
+                  <el-button @click="handleClick2(scope.row)" type="primary" style="float:left;margin-left:5px;padding: 10px 10px;" size="medium">推送WMS</el-button>
 
                 </template>
               </el-table-column>
