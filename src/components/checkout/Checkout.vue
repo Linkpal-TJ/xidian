@@ -66,7 +66,7 @@
             <div class="title" v-if="isShow">
               <h3 style="float:left;margin-left: 20px;">检验清单</h3>
               <div class="pi-button">
-                <el-button @click="piCheckout" type="primary" size="medium" >批量检验</el-button>
+                <el-button @click="piCheckout" type="primary" size="medium">批量检验</el-button>
               </div>
             </div>
 
@@ -143,7 +143,7 @@
                 label="操作"
                 width="120">
                 <template slot-scope="scope">
-                  <el-button @click="handleClick(scope.row)" type="primary" size="medium" :disabled="!scope.row.FQUALIFIEDQTY ==''">提交检验</el-button>
+                  <el-button @click="handleClick(scope.row)" type="primary" size="medium" :disabled="!scope.row.FQUALIFIEDQTY ==''" >提交检验</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -169,18 +169,23 @@
 
 
       <!--提交检验结果弹窗开始-->
-      <el-dialog title="合格数量" :close-on-click-modal="false" :visible.sync="dialogCheck" width="90%" >
+      <el-dialog title="提交检验" :close-on-click-modal="false" :visible.sync="dialogCheck" width="90%" >
         <!--<el-form :model="ruleCheckNum" :rules="rules" ref="ruleCheckNum">-->
-        <el-form :model="ruleCheckNum" ref="ruleCheckNum">
-          <el-form-item prop="checkNum">
+        <el-form :model="ruleCheckNum" ref="ruleCheckNum" :rules="rules">
+          <el-form-item prop="checkNum" label="合格数量" v-if="isShowNum">
             <el-input v-model="ruleCheckNum.checkNum" placeholder="请输入合格数量"   style="width: 100%;"></el-input>
           </el-form-item>
+          <el-form-item label="超时原因:" prop="nots" v-if="isShowNots">
+            <el-input type="textarea" v-model="ruleCheckNum.nots" placeholder="请输入超时原因"   style="width: 100%;"></el-input>
+          </el-form-item>
+
         </el-form>
 
 
         <div slot="footer" class="dialog-footer">
           <el-button @click="resetCheckNum" size="medium">重 置</el-button>
-          <el-button type="primary" @click="commitCheck('ruleCheckNum')" size="medium" :disabled="isDisable">确 定</el-button>
+          <el-button type="primary" v-if="Dsure" @click="commitCheck('ruleCheckNum')" size="medium" :disabled="isDisable">单个确 定</el-button>
+          <el-button type="primary" v-if="Psure" @click="commitCheckpi('ruleCheckNum')" size="medium" :disabled="isDisable">批量确 定</el-button>
         </div>
       </el-dialog>
       <!--提交检验结果弹窗结束-->
@@ -204,11 +209,24 @@
           saoCheckout:'',
           tableData: [],
           ruleCheckNum:{
-            checkNum:''//提交检验结果合格数量
+            checkNum:'',//提交检验结果合格数量
+            nots:''
+          },
+          isShowNots:false,
+          isShowNum:true,
+          Dsure:false,
+          Psure:false,
+          rules:{
+            checkNum:[
+              {required: true, message: '请输入合格数量', trigger: 'blur'},
+            ],
+            nots:[
+              {required: true, message: '请输入超时原因', trigger: 'blur'},
+            ],
           },
           dialogCheck:false,//提交检验结果弹窗控制
           checkRow:[],
-          multipleSelection:[]
+          multipleSelection:[],
         }
       },
       mounted() {
@@ -222,8 +240,13 @@
         window.cc = this.cc;
       },
       methods: {
+        //批量提交检验
         piCheckout(){
           if(this.multipleSelection.length>0){
+
+
+
+
 
             for(var x=0;x<this.multipleSelection.length;x++){
               if(this.multipleSelection[x].FSTATUS == '已入库'){
@@ -231,45 +254,81 @@
                 this.$refs.multipleTable.clearSelection();
                 return;
               }
+              if(this.multipleSelection[x].FSTATUS == '已检验待入库'){
+                this.$message.warning('存在已送检物料');
+                return;
+              }
             }
 
-
-
-            this.checkData=[]
-            for(var k = 0;k<this.multipleSelection.length;k++){
-              this.checkData.push({
-                fuser: this.GLOBAL.userData.UserName,
-                fid: this.multipleSelection[k].FID,
-                fentryid: this.multipleSelection[k].FENTRYID,
-                fqty:this.multipleSelection[k].FQTY
+            //请求判断是否超时
+            let OTpidata =[]
+            for(var b =0;b<this.multipleSelection.length;b++){
+              OTpidata.push({
+                'fid':this.multipleSelection[b].FID
               })
             }
+            this.isShowNum = false
 
-            console.log(this.checkData)
-            this.$axios.post(this.GLOBAL.baseURL + '/QCReport', this.checkData,{
-              headers:{"Authorization":"Bearer" + " " + this.GLOBAL.token}
-            }).then((response) => {
-              // console.log(response.data)
-              if(response.data.success == true){
-                //送检成功,刷新收货清单数据
-                console.log(response.data)
-                this.$message.success('操作成功');
 
-                this.GetCheckout(this.saoCheckout)
-
+            this.overTime(OTpidata).then(res => {
+              if(res.data.FISOVERTIME == '是'){ //超时
+                this.isShowNots = true
+                this.dialogCheck = true
+                this.ruleCheckNum.nots = ''
+                this.Dsure = false
+                this.Psure =true
+                //alert('超时')
               }else {
-                this.$message.error(response.data.result);
+                this.subCheckNumpi()
+                //alert("没超时")
               }
-
-            }).catch((err) => {
-              console.log(err)
             })
+
+
 
           }else {
             this.$message.warning('请勾选相应的物料');
           }
 
+        },
+        subCheckNumpi(){
+          const loading = this.$loading({
+            lock: true,
+            text: '数据提交中',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          });
+          this.checkData=[]
+          for(var k = 0;k<this.multipleSelection.length;k++){
+            this.checkData.push({
+              fuser: this.GLOBAL.userData.UserName,
+              fid: this.multipleSelection[k].FID,
+              fentryid: this.multipleSelection[k].FENTRYID,
+              fqty:this.multipleSelection[k].FQTY,
+              freason:this.ruleCheckNum.nots
+            })
+          }
+          console.log(this.checkData)
+          this.$axios.post(this.GLOBAL.baseURL + '/QCReport', this.checkData,{
+            headers:{"Authorization":"Bearer" + " " + this.GLOBAL.token}
+          }).then((response) => {
+            // console.log(response.data)
+            if(response.data.success == true){
+              //送检成功,刷新收货清单数据
+              console.log(response.data)
+              this.GetCheckout(this.saoCheckout)
+              loading.close();
+              this.$message.success('操作成功');
+            }else {
+              loading.close();
+              this.$message.error(response.data.result);
+            }
 
+          }).catch((err) => {
+            console.log(err)
+            loading.close();
+          })
+          this.dialogCheck = false
         },
         handleSelectionChange(val) {
           this.multipleSelection = val;
@@ -293,16 +352,57 @@
             this.isShow = true
           }
         },
+        //单个提交检验
         handleClick(row) {
+          this.Dsure = true
+          this.Psure =false
           this.dialogCheck = true
           this.checkRow = row
-          //this.ruleCheckNum.checkNum = ''
+          this.isShowNum = true
           this.ruleCheckNum.checkNum = row.FQTY
+          this.ruleCheckNum.nots = ''
+          //请求判断是否超时
+          let OTdata =[]
+          OTdata.push({
+            'fid':row.FID
+          })
 
+          this.overTime(OTdata).then(res => {
+            if(res.data.FISOVERTIME == '是') { //超时
+              this.isShowNots = true
+            }
+          })
+
+        },
+        //判断是否超时请求方法
+        async overTime(fid){
+          let res
+           await this.$axios.post(this.GLOBAL.baseURL + '/isOverTime',fid).then((response) => {
+            console.log(response.data.FISOVERTIME)
+             res = response
+
+          }).catch((err) => {
+            console.log(err)
+          })
+          return res
         },
         resetCheckNum(){
           this.ruleCheckNum.checkNum = ''
+          this.ruleCheckNum.nots = ''
         },
+        //批量送检提交
+        commitCheckpi(formName){
+          this.$refs[formName].validate((valid) => {
+            // alert(valid)
+            if (valid) {
+              this.subCheckNumpi();
+            } else {
+              console.log('error submit!!');
+              return false;
+            }
+          });
+        },
+
         //送检提交
         commitCheck(formName){
           this.$refs[formName].validate((valid) => {
@@ -325,12 +425,19 @@
         },
         //送检请求数据
         subCheckNum(){
+          const loading = this.$loading({
+            lock: true,
+            text: '数据提交中',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          });
           this.checkData=[]
           this.checkData.push({
             fuser: this.GLOBAL.userData.UserName,
             fid: this.checkRow.FID,
             fentryid: this.checkRow.FENTRYID,
-            fqty:this.ruleCheckNum.checkNum
+            fqty:this.ruleCheckNum.checkNum,
+            freason:this.ruleCheckNum.nots
           })
           //console.log(this.checkData)
           this.$axios.post(this.GLOBAL.baseURL + '/QCReport', this.checkData,{
@@ -340,18 +447,17 @@
             if(response.data.success == true){
               //送检成功,刷新收货清单数据
               console.log(response.data)
-
-              this.$message.success('操作成功');
-
               this.GetCheckout(this.saoCheckout)
-
-
+              loading.close();
+              this.$message.success('操作成功');
             }else {
+              loading.close();
               this.$message.error(response.data.result);
             }
 
           }).catch((err) => {
             console.log(err)
+            loading.close();
           })
           this.isDisable = false
         },
@@ -382,7 +488,7 @@
           //网页测试
           //this.GetCheckout('FH_000073015')
           //this.GetCheckout('FH_000074090')
-          //this.GetCheckout('FH_000074388')
+          //this.GetCheckout('FH_000075050')
 
           // BSL.Qcode('0','cc')
           AndroidJs.scan('cc');

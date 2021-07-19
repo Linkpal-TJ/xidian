@@ -56,6 +56,7 @@
               </div>
             <el-table
               ref="multipleTable"
+              v-loading="loading"
               :max-height="this.GLOBAL.isheight"
               :data="tableData.filter(data => !SearchFcontractno || data.FCONTRACTNO.toLowerCase().includes(SearchFcontractno.toLowerCase()))"
               stripe
@@ -65,11 +66,11 @@
                 label="合同号"
               >
               </af-table-column>
-              <af-table-column
-                prop="FENTRYID"
-                label="项目名称"
-              >
-              </af-table-column>
+<!--              <af-table-column-->
+<!--                prop="FENTRYID"-->
+<!--                label="项目名称"-->
+<!--              >-->
+<!--              </af-table-column>-->
 
               <el-table-column
                 align="center"
@@ -113,21 +114,29 @@
             isOpen:true,
             SearchFcontractno:'',
             loading: true,
-            tableData:[{
-              FCONTRACTNO:'dddd',
-              FENTRYID:'qqqq'
-            },{
-              FCONTRACTNO:'aaa',
-              FENTRYID:'q333q'
-            }]
+            tableData:[]
           }
+      },
+      mounted() {
+          this.getContract()
       },
       watch:{
         $route(){
           this.jihuo(this.activeIndex)
         }
       },
+
       methods:{
+        getContract(){
+          this.$axios.get(this.GLOBAL.baseURL + '/contract').then((response) => {
+            console.log(response.data)
+            this.tableData = response.data
+            this.loading = false
+          }).catch((err) => {
+            console.log(err)
+            this.loading = false
+          })
+        },
         jihuo(index){
           // alert(index)
           this.activeIndex = index

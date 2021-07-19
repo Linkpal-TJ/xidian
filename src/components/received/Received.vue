@@ -101,15 +101,10 @@
                   prop="FTOTALRECEIVEQTY"
                   label="累计收货数">
                 </af-table-column>
-
-
                 <af-table-column
                   prop="FSTOCK"
                   label="仓库">
                 </af-table-column>
-
-
-
 <!--                <af-table-column-->
 <!--                  prop="FISCHECK"-->
 <!--                  label="是否检验">-->
@@ -142,7 +137,6 @@
                   prop="FSUPPLIER"
                   label="供应商">
                 </af-table-column>
-
                 <el-table-column
                   align="center"
                   fixed="right"
@@ -153,9 +147,6 @@
                     <el-button v-if="scope.row.FISCHECK=='否'"  @click="handleClick3(scope.row)" type="success" size="medium" :disabled="scope.row.FSTATUS == '已入库'">直接入库</el-button>
                   </template>
                 </el-table-column>
-
-
-
 
 
               </el-table>
@@ -239,12 +230,12 @@
         <!--单个收货送检-->
         <div slot="footer" class="dialog-footer" v-if="showDCheck">
           <el-button @click="resetNum" size="medium">重 置</el-button>
-          <el-button type="primary" @click="commits('rulereceiveNum')" size="medium" :disabled="isDisable">单个收货确 定</el-button>
+          <el-button type="primary" @click="commits('rulereceiveNum')" size="medium" :disabled="isDisable" >单个收货确 定</el-button>
         </div>
         <!--单个直接入库-->
         <div slot="footer" class="dialog-footer" v-if="showDEnter">
           <el-button @click="resetNum" size="medium">重 置</el-button>
-          <el-button type="primary" @click="commitsEnter('rulereceiveNum')" size="medium" :disabled="isDisable">单个入库确 定</el-button>
+          <el-button type="primary" @click="commitsEnter('rulereceiveNum')" size="medium" :disabled="isDisable" >单个入库确 定</el-button>
         </div>
 
       </el-dialog>
@@ -285,12 +276,12 @@
               <!--//批量送检-->
               <div slot="footer" class="dialog-footer" v-if="showCheck">
                 <el-button @click="resetruleStock" size="medium">重 置</el-button>
-                <el-button type="primary" @click="commitStock('ruleStock')" size="medium" :disabled="isDisable">确定送检</el-button>
+                <el-button type="primary" @click="commitStock('ruleStock')" size="medium" :disabled="isDisable" >确定送检</el-button>
               </div>
              <!--//批量入库-->
               <div slot="footer" class="dialog-footer" v-if="showEnter">
                 <el-button @click="resetruleStock" size="medium">重 置</el-button>
-                <el-button type="primary" @click="commitEnter('ruleStock')" size="medium" :disabled="isDisable">确定入库</el-button>
+                <el-button type="primary" @click="commitEnter('ruleStock')" size="medium" :disabled="isDisable" >确定入库</el-button>
               </div>
 
             </el-dialog>
@@ -438,7 +429,8 @@
               flocation:'',
               flocationid:''
             },
-            piData:{}
+            piData:{},
+
           }
       },
       mounted() {
@@ -664,6 +656,12 @@
         },
         //批量入库数据提交
         pienterData(){
+          const loading = this.$loading({
+            lock: true,
+            text: '数据提交中',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          });
           var data =[]
           for(var k = 0; k<this.multipleSelection.length;k++){
             data.push({
@@ -685,15 +683,17 @@
             // console.log(response.data)
             if(response.data.success == true){
               //收货成功,刷新收货清单数据
-              this.$message.success('操作成功');
               this.GetReceived(this.saoResult)
-
+              loading.close();
+              this.$message.success('操作成功');
             }else {
+              loading.close();
               this.$message.error(response.data.result);
             }
 
           }).catch((err) => {
             console.log(err)
+            loading.close();
           })
           this.isDisable = false
           this.selectStore = false //关闭弹窗
@@ -702,8 +702,13 @@
         },
         //批量送检数据提交
         picommitData(){
+          const loading = this.$loading({
+            lock: true,
+            text: '数据提交中',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          });
           var data =[]
-
           console.log("this.multipleSelection")
           console.log(this.multipleSelection)
           for(var k = 0; k<this.multipleSelection.length;k++){
@@ -719,19 +724,22 @@
           }
      console.log("data")
      console.log(data)
+
           this.$axios.post(this.GLOBAL.baseURL + '/purReceival',data).then((response) => {
             // console.log(response.data)
             if(response.data.success == true){
               //收货成功,刷新收货清单数据
-              this.$message.success('操作成功');
               this.GetReceived(this.saoResult)
-
+              loading.close();
+              this.$message.success('操作成功');
             }else {
+              loading.close();
               this.$message.error(response.data.result);
             }
 
           }).catch((err) => {
             console.log(err)
+            loading.close();
           })
           this.isDisable = false
           this.selectStore = false //关闭弹窗
@@ -804,6 +812,8 @@
           this.rulereceiveNum.receiveNum = row.FDELIVERYQTY - row.FRECEIVEQTY
           console.log(this.receivedRow)
 
+
+
         },
         //单个入库
         handleClick3(row) {
@@ -867,6 +877,7 @@
 
         //单个收货送检提交
         commits(formName){
+
           this.$refs[formName].validate((valid) => {
             if (valid) {
               if (this.rulereceiveNum.receiveNum > (this.receivedRow[0].FDELIVERYQTY - this.receivedRow[0].FRECEIVEQTY)) {
@@ -874,7 +885,7 @@
 
               } else {
                 this.isDisable = true
-                this.dialogNum = false
+                //this.dialogNum = false
                 this.subNum();
               }
 
@@ -983,9 +994,13 @@
         //   this.isDisable = false
         // },
         danEntersub(){
-
+          const loading = this.$loading({
+            lock: true,
+            text: '数据提交中',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          });
           this.numData=[]
-
 
           this.numData.push({
             'fuser': this.GLOBAL.userData.UserName,
@@ -1002,23 +1017,30 @@
             // console.log(response.data)
             if(response.data.success == true){
               //收货成功,刷新收货清单数据
-              this.$message.success('操作成功');
               this.GetReceived(this.saoResult)
-
+              loading.close();
+              this.$message.success('操作成功');
             }else {
+              loading.close();
               this.$message.error(response.data.result);
             }
 
           }).catch((err) => {
             console.log(err)
+            loading.close();
           })
           this.dialogNum = false
           this.showDEnter = false
           this.isDisable = false
         },
         subNum(){
+          const loading = this.$loading({
+            lock: true,
+            text: '数据提交中',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          });
           this.numData=[]
-
 
             this.numData.push({
               fuser: this.GLOBAL.userData.UserName,
@@ -1033,19 +1055,22 @@
               // console.log(response.data)
               if(response.data.success == true){
                 //收货成功,刷新收货清单数据
-                this.$message.success('操作成功');
                 this.GetReceived(this.saoResult)
-
+                loading.close();
+                this.$message.success('操作成功');
               }else {
+                loading.close();
                 this.$message.error(response.data.result);
               }
 
             }).catch((err) => {
               console.log(err)
+              loading.close();
             })
           this.dialogNum = false
           this.showDCheck = false
           this.isDisable = false
+
         },
         resetNum(){
           this.rulereceiveNum.receiveNum = ''
@@ -1113,7 +1138,7 @@
         },
         qrcode(){
           //网页调试
-          //this.GetReceived('FH_000074388')
+          //this.GetReceived('FH_000075050')
           //this.GetReceived('FH_000074337')
 
           // BSL.Qcode('0','aa')
